@@ -17,7 +17,7 @@ import java.util.Stack;
  * odpowiadających na pytanie, czy automat akceptuje napis, czy nie),
  * tylko "zawartość" automatu.
  */
-public abstract class AutomatonSpecification implements Cloneable  {
+public abstract class AutomatonSpecification implements Cloneable {
 
     // metody "budujące" automat
     /**
@@ -31,6 +31,7 @@ public abstract class AutomatonSpecification implements Cloneable  {
      * Dodaje przejście od stanu 'from' do stanu 'to' etykietowane etykietą transitionLabel.
      */
     public abstract void addTransition(State from, State to, TransitionLabel transitionLabel);
+
     /**
      * Dodaje przejście od stanu 'from' do nowo utworzonego stanu 'to' etykietowane etykietą
      * transitionLabel, a następnie zwraca utworzony stan.
@@ -57,7 +58,7 @@ public abstract class AutomatonSpecification implements Cloneable  {
                     new CharTransitionLabel(text.charAt(i)));
             next = prev;
         }
-       return prev;
+        return prev;
     }
 
     /**
@@ -125,8 +126,9 @@ public abstract class AutomatonSpecification implements Cloneable  {
     public boolean isEmpty() {
 
         List<State> states = allStates();
-        if (states.isEmpty())
+        if (states.isEmpty()) {
             return true;
+        }
         return false;
     }
 
@@ -183,27 +185,28 @@ public abstract class AutomatonSpecification implements Cloneable  {
         return retString.toString();
     }
 
-
-   /**
+    /**
      * Sprawdza, czy język akceptowany przez automat jest niepusty.
      */
     public boolean isNotEmpty() {
         List<State> states = allStates();
 
-        if (states.isEmpty())
+        if (states.isEmpty()) {
             return false;
-        else {
+        } else {
             int counter = 0;
             boolean isThereNoInitialState = false;
             for (State s : allStates()) {
-                if (this.isFinal(s))
+                if (this.isFinal(s)) {
                     counter++;
+                }
             }
-            if (this.getInitialState() == null)
+            if (this.getInitialState() == null) {
                 isThereNoInitialState = true;
-            if (counter == 0 || isThereNoInitialState)
+            }
+            if (counter == 0 || isThereNoInitialState) {
                 return false;
-            else {
+            } else {
                 Stack<Integer> stateStack = new Stack<Integer>();
                 Stack<Integer> transitionStack = new Stack<Integer>();
                 Stack<Integer> branchStack = new Stack<Integer>();
@@ -219,8 +222,9 @@ public abstract class AutomatonSpecification implements Cloneable  {
                     state = stateStack.pop();
                     transition = transitionStack.pop();
 
-                    if (this.isFinal(states.get(state)))
+                    if (this.isFinal(states.get(state))) {
                         return true;
+                    }
 
                     if (transition < branches) {
                         stateStack.push(state);
@@ -238,7 +242,7 @@ public abstract class AutomatonSpecification implements Cloneable  {
         return false;
     }
 
-   /**
+    /**
      * Sprawdza, czy automat jest deterministyczny (to znaczy, czy ma
      * przynajmniej jeden stan, czy nie zawiera epsilon-przejść (za wyjątkiem
      * sytuacji, gdy epsilon-przejście jest jedynym sposobem wyjścia ze stanu)
@@ -248,25 +252,29 @@ public abstract class AutomatonSpecification implements Cloneable  {
     public boolean isDeterministic() {
         List<State> states = allStates();
 
-        if (states.isEmpty())
+        if (states.isEmpty()) {
             return false;
+        }
 
         for (State state : states) {
             List<OutgoingTransition> transitions = allOutgoingTransitions(state);
 
-            if (transitions.size() <= 1)
+            if (transitions.size() <= 1) {
                 continue;
+            }
 
             for (int i = 0; i < transitions.size(); ++i) {
                 TransitionLabel label = transitions.get(i).getTransitionLabel();
 
-                if (label.canBeEpsilon())
+                if (label.canBeEpsilon()) {
                     return false;
+                }
 
                 for (int j = i + 1; j < transitions.size(); ++j) {
                     TransitionLabel label2 = transitions.get(j).getTransitionLabel();
-                    if (!label2.intersect(label).isEmpty())
+                    if (!label2.intersect(label).isEmpty()) {
                         return false;
+                    }
                 }
             }
         }
@@ -295,6 +303,7 @@ public abstract class AutomatonSpecification implements Cloneable  {
     public String getDotGraph() {
 
         class DotGraph {
+
             private StringBuffer dotCode;
             private List<State> states;
 
@@ -306,14 +315,16 @@ public abstract class AutomatonSpecification implements Cloneable  {
             private void getDotGraphIntro() {
                 dotCode.append(
                         "digraph finite_state_machine {\n"
-                         + "    rankdir=LR;\n"
-                         + "    size=\"8,5\"\n"
-                         + "    node [style=filled fillcolor=\"#00ff005f\" shape = ");
-                if (isFinal(getInitialState())) dotCode.append("double");
+                        + "    rankdir=LR;\n"
+                        + "    size=\"8,5\"\n"
+                        + "    node [style=filled fillcolor=\"#00ff005f\" shape = ");
+                if (isFinal(getInitialState())) {
+                    dotCode.append("double");
+                }
                 dotCode.append("circle];\n"
-                               + "    \"State #" + states.indexOf(getInitialState()) + "\";\n"
-                               + "    node [shape = doublecircle style=filled "
-                               + "fillcolor=\"#00000000\"];\n    ");
+                        + "    \"State #" + states.indexOf(getInitialState()) + "\";\n"
+                        + "    node [shape = doublecircle style=filled "
+                        + "fillcolor=\"#00000000\"];\n    ");
             }
 
             private void getDotGraphFinalStates() {
@@ -363,7 +374,7 @@ public abstract class AutomatonSpecification implements Cloneable  {
                 }
             }
 
-            public String  getDotGraph() {
+            public String getDotGraph() {
                 getDotGraphIntro();
                 getDotGraphFinalStates();
                 dotCode.append(";\n" + "    node [shape = circle];\n" + "");
@@ -405,16 +416,17 @@ public abstract class AutomatonSpecification implements Cloneable  {
         HashMap<State, State> connectedStates = new HashMap<State, State>();
         State automatonInitialState = automaton.getInitialState();
         for (State currentState : loadedStates) {
-            if (currentState == automatonInitialState)
+            if (currentState == automatonInitialState) {
                 connectedStates.put(currentState, state);
-            else
+            } else {
                 connectedStates.put(currentState, this.addState());
+            }
         }
         for (State currentState : loadedStates) {
-            if (automaton.isFinal(currentState))
+            if (automaton.isFinal(currentState)) {
                 markAsFinal(connectedStates.get(currentState));
-            List<OutgoingTransition> list = automaton
-                    .allOutgoingTransitions(currentState);
+            }
+            List<OutgoingTransition> list = automaton.allOutgoingTransitions(currentState);
             for (OutgoingTransition transition : list) {
                 this.addTransition(connectedStates.get(currentState),
                         connectedStates.get(transition.getTargetState()),
@@ -442,8 +454,9 @@ public abstract class AutomatonSpecification implements Cloneable  {
 
         for (OutgoingTransition transition1 : allOutgoingTransitions(state)) {
 
-            if (transition1.getTransitionLabel().canAcceptCharacter(c))
+            if (transition1.getTransitionLabel().canAcceptCharacter(c)) {
                 return true;
+            }
         }
 
         return false;
@@ -455,17 +468,20 @@ public abstract class AutomatonSpecification implements Cloneable  {
      */
     public boolean isFull(String alphabet) {
 
-        if (allStates().isEmpty())
+        if (allStates().isEmpty()) {
             return false;
+        }
 
         for (State state : allStates()) {
 
-            if (allOutgoingTransitions(state).isEmpty())
-                    return false;
+            if (allOutgoingTransitions(state).isEmpty()) {
+                return false;
+            }
 
             for (int i = 0; i < alphabet.length(); i++) {
-                if (!doesTransitionExist(state, alphabet.charAt(i)))
+                if (!doesTransitionExist(state, alphabet.charAt(i))) {
                     return false;
+                }
             }
         }
 
@@ -481,9 +497,10 @@ public abstract class AutomatonSpecification implements Cloneable  {
 
         if (this.isEmpty()) {
             trash = addState();
-            for (int i = 0; i < alphabet.length(); i++)
+            for (int i = 0; i < alphabet.length(); i++) {
                 addLoop(trash, new CharTransitionLabel(
                         alphabet.charAt(i)));
+            }
             return;
         }
 
@@ -493,8 +510,9 @@ public abstract class AutomatonSpecification implements Cloneable  {
 
                 if (allOutgoingTransitions(state).isEmpty()) {
 
-                    if (trash == null)
+                    if (trash == null) {
                         trash = addState();
+                    }
 
                     addTransition(state, trash, new CharTransitionLabel(
                             alphabet.charAt(i)));
@@ -502,8 +520,9 @@ public abstract class AutomatonSpecification implements Cloneable  {
 
                 if (!doesTransitionExist(state, alphabet.charAt(i))) {
 
-                    if (trash == null)
+                    if (trash == null) {
                         trash = addState();
+                    }
 
                     addTransition(state, trash, new CharTransitionLabel(
                             alphabet.charAt(i)));
@@ -513,9 +532,10 @@ public abstract class AutomatonSpecification implements Cloneable  {
 
         if (trash != null) {
 
-            for (int i = 0; i < alphabet.length(); i++)
+            for (int i = 0; i < alphabet.length(); i++) {
                 addLoop(trash, new CharTransitionLabel(
                         alphabet.charAt(i)));
+            }
         }
     }
 
@@ -544,7 +564,7 @@ public abstract class AutomatonSpecification implements Cloneable  {
                 currentState = outgoing.get(j).getTargetState();
 
                 if (isFinal(currentState)) {
-                        return true;
+                    return true;
                 }
 
                 if (!checkedStates.contains(currentState)) {
@@ -559,7 +579,6 @@ public abstract class AutomatonSpecification implements Cloneable  {
     /**
      * Funkcja tworzaca zawartość automatu ze Stringa.
      */
-
     void fromString(String automatonDescription) throws StructureException {
         MakeAutomatonFromString graph = new MakeAutomatonFromString(this, automatonDescription);
         graph.make();
@@ -568,7 +587,6 @@ public abstract class AutomatonSpecification implements Cloneable  {
     /**
      * Zwraca true, gdy automat akceptuje napis pusty.
      */
-
     public boolean acceptEmptyWord() {
 
         List<State> tocheck = new ArrayList<State>();
@@ -604,38 +622,66 @@ public abstract class AutomatonSpecification implements Cloneable  {
         return false;
     }
 
-
     /**
      * Sprawdza, czy w automacie istnieją zbędne stany.
      */
     public boolean uselessStates() {
         boolean flag1 = true;
         boolean flag2 = false;
+        boolean flag3 = false;
+        int n = 0;
         State q = getInitialState();
+        State r;
         List<State> stack = new ArrayList<State>();
-        List<State> used;
-        used = allStates();
+        List<State> usedSt;
+        List<State> usedFin;
+        usedSt = allStates();
+        usedFin = new ArrayList<State>();
+
         int x = 0;
         while (true) {
             if (flag1) {
                 for (int i = 1; i <= allOutgoingTransitions(q).size(); i++) {
                     stack.add(allOutgoingTransitions(q).get(i).getTargetState());
+                    n++;
                 }
             }
             if (!stack.isEmpty()) {
                 flag1 = true;
                 q = stack.get(stack.size());
-                for (int i = 1; i <= used.size(); i++) {
-                    if (used.get(i) == q) {
+                for (int i = 0; i < usedSt.size(); i++) {
+                    if (usedSt.get(i) == q) {
                         flag2 = true;
                         x = i;
                         break;
                     }
                 }
                 if (flag2) {
-                    used.remove(x);
-                    flag2 = false;
-                    continue;
+                    usedSt.remove(x);
+                    if (isFinal(q)) {
+                        usedFin.add(q);
+                    } else {
+                        for (int i = 1; i <= allOutgoingTransitions(q).size(); i++) {
+                            for (int j = 0; j < n; j++) {
+                                if (usedFin.get(j) != null) {
+                                    r = usedFin.get(j);
+                                } else {
+                                    break;
+                                }
+                                if (r == allOutgoingTransitions(q).get(i).getTargetState()) {
+                                    usedFin.add(q);
+                                    flag3 = true;
+                                    break;
+                                }
+                            }
+                            if (flag3) {
+                                flag3 = false;
+                                break;
+                            }
+                        }
+                        flag2 = false;
+                        continue;
+                    }
                 } else {
                     flag1 = false;
                 }
@@ -643,8 +689,13 @@ public abstract class AutomatonSpecification implements Cloneable  {
                 break;
             }
         }
-        for (int i = 1; i <= used.size(); i++) {
-            if (used.get(i) != null) {
+        for (int i = 0; i < usedSt.size(); i++) {
+            if (usedSt.get(i) != null) {
+                return true;
+            }
+        }
+        for (int i = usedFin.size() - 1; i >= 0; i--) {
+            if (usedFin.get(i) == null) {
                 return true;
             }
         }
@@ -658,8 +709,9 @@ public abstract class AutomatonSpecification implements Cloneable  {
         State state = addState();
         markAsInitial(state);
         markAsFinal(state);
-        for (int i = 0; i < alphabet.length(); i++)
+        for (int i = 0; i < alphabet.length(); i++) {
             addLoop(state, new CharTransitionLabel(alphabet.charAt(i)));
+        }
 
         return this;
     }
@@ -737,8 +789,9 @@ public abstract class AutomatonSpecification implements Cloneable  {
         for (int i = 0; i < finalStates.size(); i++) {
             boolean istrue = prefixChecker(finalStates.get(i));
 
-            if (istrue)
+            if (istrue) {
                 return true;
+            }
         }
         return false;
     }
@@ -788,7 +841,6 @@ public abstract class AutomatonSpecification implements Cloneable  {
         return words;
     }
 
-
     /**
      * Sprawdza, czy akceptowany język jest nieskończony.
      */
@@ -804,19 +856,22 @@ public abstract class AutomatonSpecification implements Cloneable  {
             }
         }
 
-        if (allOutgoingTransitions(state).isEmpty())
+        if (allOutgoingTransitions(state).isEmpty()) {
             return false;
+        }
 
         history.add(state);
 
         boolean result = false;
         for (OutgoingTransition child : allOutgoingTransitions(state)) {
             List<State> newHistory = new ArrayList<State>();
-            for (State s : history)
+            for (State s : history) {
                 newHistory.add(s);
-                result = result || checkForLoop(child.getTargetState(), newHistory);
-            if (result)
+            }
+            result = result || checkForLoop(child.getTargetState(), newHistory);
+            if (result) {
                 break;
+            }
         }
         return result;
     }
@@ -824,22 +879,27 @@ public abstract class AutomatonSpecification implements Cloneable  {
     private boolean findFinals(State state, List<State> history) {
         boolean result = false;
 
-        if (isFinal(state))
+        if (isFinal(state)) {
             return true;
+        }
 
-        for (State his : history)
-            if (his == state)
+        for (State his : history) {
+            if (his == state) {
                 return false;
+            }
+        }
 
         history.add(state);
 
         for (OutgoingTransition child : allOutgoingTransitions(state)) {
             List<State> newHistory = new ArrayList<State>();
-            for (State s : history)
+            for (State s : history) {
                 newHistory.add(s);
+            }
             result = result || findFinals(child.getTargetState(), newHistory);
-            if (result)
+            if (result) {
                 break;
+            }
         }
         return result;
     }
@@ -858,55 +918,60 @@ public abstract class AutomatonSpecification implements Cloneable  {
         String word = "";
         int l = alphabet.length();
         int x = 1;
-        if (this.isEmpty())
+        if (this.isEmpty()) {
             throw new RuntimeException("empty automaton");
+        }
         if (this.acceptEmptyWord()) {
             found = true;
             return "";
-        } else do {
-            int flag = x;
-            char[] searchWord = new char[x];
-            while (flag > 0) {
-                searchWord[flag - 1] = sorted.charAt(0);
-                flag--;
-            }
-            for (int i = 0; i < l; i++) {
-                if (x > 1 && searchWord[x - 1] == sorted.charAt(sorted.length() - 1)) {
-                    while (flag > 0) {
-                        if (searchWord[flag - 1] == sorted.charAt(sorted.length() - 1)) {
-                            flag--;
-                        } else {
-                            int z = 0, y = 0;
-                            while (z < sorted.length() - 1 && y == 0) {
-                                if (searchWord[flag - 1] == sorted.charAt(z))
-                                    y = z + 1;
-                                else
-                                    z++;
-                            }
-                            searchWord[flag - 1] = sorted.charAt(y);
-                            int tempFlag = flag;
-                            flag = x;
-                            while (flag > tempFlag) {
-                                searchWord[flag - 1] = sorted.charAt(0);
+        } else {
+            do {
+                int flag = x;
+                char[] searchWord = new char[x];
+                while (flag > 0) {
+                    searchWord[flag - 1] = sorted.charAt(0);
+                    flag--;
+                }
+                for (int i = 0; i < l; i++) {
+                    if (x > 1 && searchWord[x - 1] == sorted.charAt(sorted.length() - 1)) {
+                        while (flag > 0) {
+                            if (searchWord[flag - 1] == sorted.charAt(sorted.length() - 1)) {
                                 flag--;
+                            } else {
+                                int z = 0, y = 0;
+                                while (z < sorted.length() - 1 && y == 0) {
+                                    if (searchWord[flag - 1] == sorted.charAt(z)) {
+                                        y = z + 1;
+                                    } else {
+                                        z++;
+                                    }
+                                }
+                                searchWord[flag - 1] = sorted.charAt(y);
+                                int tempFlag = flag;
+                                flag = x;
+                                while (flag > tempFlag) {
+                                    searchWord[flag - 1] = sorted.charAt(0);
+                                    flag--;
+                                }
+                                flag = 0;
                             }
-                            flag = 0;
                         }
                     }
+                    flag = x;
+                    searchWord[x - 1] = tmp[i % alphabet.length()];
+                    String acceptedWord = new String(searchWord);
+                    if (a.accepts(acceptedWord)) {
+                        word = acceptedWord;
+                        found = true;
+                    }
                 }
-                flag = x;
-                searchWord[x - 1] = tmp[i % alphabet.length()];
-                String acceptedWord = new String(searchWord);
-                if (a.accepts(acceptedWord)) {
-                    word = acceptedWord;
-                    found = true;
-                }
-            }
-            x++;
-            l = l * alphabet.length();
-        } while(!found);
+                x++;
+                l = l * alphabet.length();
+            } while (!found);
+        }
         return word;
     }
+
     /**
      *Metoda zwraca długość najdłuższego słowa akceptowanego.
      */
@@ -941,6 +1006,7 @@ public abstract class AutomatonSpecification implements Cloneable  {
         AlwaysAcceptingContextChecker contextChecker = new AlwaysAcceptingContextChecker();
         return doGetEpsilonClosure(initial, contextChecker);
     }
+
     /**
      * Dla podanego automatu tworzy równoważny automat z 1 stanem końcowym.
      */
@@ -1022,7 +1088,6 @@ public abstract class AutomatonSpecification implements Cloneable  {
         }
         return epsilonClosure;
     }
-
     private LinkedList<State> finalStatess = new LinkedList<State>();
 };
 
